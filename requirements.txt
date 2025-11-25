@@ -1,0 +1,11 @@
+google-adk
+google-generativeai
+arxiv
+pdfplumber
+pymupdf
+markdownify
+pydantic
+tenacity
+fastapi
+uvicorn
+rich

@@ -19,7 +19,7 @@ This project is built entirely with **Gemini-powered agents**, incorporates **pa
 - **Sequential agents** (Intake → Orchestrator → Query Builder → Retriever → Ranker → Reviewer → Scoring)
 - **Parallel agents** (Concurrent summarization of related papers)
 - **Loop agents** (Retry logic for Gemini quota and invalid key handling)
-
+![ ✔️ Multi-Agent Architecture](assets/agents.png)
 ### ✔️ Tools
 - Custom `gemini_text()` tool with:
   - Quota handling
@@ -27,7 +27,7 @@ This project is built entirely with **Gemini-powered agents**, incorporates **pa
   - Model switching via env vars
 - PDF parsing tool  
 - ArXiv retriever tool
-
+![✔️ Tools](assets/tools.png)
 ### ✔️ Memory & Sessions
 - Custom `SessionState` class  
 - Stores extracted title, related papers, summaries, final review  
@@ -48,7 +48,10 @@ This project is built entirely with **Gemini-powered agents**, incorporates **pa
 
 ## Architecture
 
-![Architecture](assets/Screenshot 2025-11-25 at 5.23.43 PM.png)
+![Architecture](assets/archtecture-diagram.png)
+
+## Folder Structure
+![Folder Structure](assets/folder-structure.png)
 
 ## Setup
 

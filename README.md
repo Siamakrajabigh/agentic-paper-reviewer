@@ -1,14 +1,92 @@
-# Agentic Paper Reviewer (Capstone)
+# 📄 Agentic Paper Reviewer  
+### Enterprise AI Multi-Agent System for Automated Academic Paper Review  
+**Built for Kaggle Google Agents Capstone — Enterprise Track**
 
-A multi-agent system that:
-1. Ingests a paper PDF
-2. Extracts text + title
-3. Generates search queries
-4. Retrieves related work from arXiv
-5. Summarizes top related papers in parallel
-6. Writes a structured peer review grounded in related work
-7. Scores the paper on 7 dimensions
+---
 
+## 🚀 Overview
+
+Agentic Paper Reviewer is a **multi-agent system** designed to automatically read, analyze, contextualize, and review academic research papers.  
+It simulates the workflow of a real peer reviewer by extracting content, searching related work, evaluating novelty, summarizing findings, and generating final review scores.
+
+This project is built entirely with **Gemini-powered agents**, incorporates **parallel + sequential agents**, includes **session state**, **tooling**, **logging**, and is fully **deployable on Google Cloud Run**.
+
+---
+
+## 🧩 Key Features
+
+### ✔️ Multi-Agent Architecture
+- **Sequential agents** (Intake → Orchestrator → Query Builder → Retriever → Ranker → Reviewer → Scoring)
+- **Parallel agents** (Concurrent summarization of related papers)
+- **Loop agents** (Retry logic for Gemini quota and invalid key handling)
+
+### ✔️ Tools
+- Custom `gemini_text()` tool with:
+  - Quota handling
+  - Exponential backoff
+  - Model switching via env vars
+- PDF parsing tool  
+- ArXiv retriever tool
+
+### ✔️ Memory & Sessions
+- Custom `SessionState` class  
+- Stores extracted title, related papers, summaries, final review  
+- Log history for observability
+
+### ✔️ Observability
+- Structured logging  
+- Logs for each agent step  
+- Execution time tracking  
+- Error propagation for debugging
+
+### ✔️ Deployment Ready
+- Dockerfile included  
+- Cloud Run deployment commands provided  
+- Works via simple `POST /review` endpoint
+
+---
+
+## 🧠 Architecture
+
+The system is composed of **eight agents**, each responsible for one part of the pipeline.
++—————––+
+|   Intake Agent    |  Extract paper text, title
++–––––+––––+
+|
+v
++—————––+
+| Orchestrator      |  Creates multi-step plan
++–––––+––––+
+|
+v
++—————––+
+| Query Builder     |  Builds search queries for related papers
++–––––+––––+
+|
+v
++—————––+
+| Retriever Agent   |  ArXiv search API
++–––––+––––+
+|
+v
++—————––+
+| Ranker Agent      |  Sorts papers by relevance
++–––––+––––+
+|
+v
++—————————+
+| Parallel Summarizer Agents|  Summaries in parallel threads
++–––––+––––––––+
+|
+v
++—————––+
+| Review Writer     |  Final review narrative
++–––––+––––+
+|
+v
++—————––+
+| Scoring Agent     |  Quantitative scores
++—————––+
 ## Setup
 
 ```bash

@@ -22,3 +22,5 @@ build/
 tmp/
 temp/
 *.tmp
+.env.local
+.DS_Store

@@ -1,39 +1,92 @@
-from agents.base import AgentResult
-from tools.llm import gemini_text
-from tools.context import compact_context
+# agents/review_writer_agent.py
 
-def review_writer_agent(state) -> AgentResult:
-    title = state["paper_title"]
-    paper_md = compact_context(state["paper_md"])
-    related = state["related_summaries"]
+from tools.llm import gemini_text, LLMQuotaError, LLMConfigError
 
-    related_block = "\n\n".join(
-        [f"Title: {r['title']}\nSummary:\n{r['summary']}" for r in related]
+
+def review_writer_agent(state):
+    """
+    Uses:
+      - state["paper_title"]
+      - optional: state["paper_abstract"] / state["paper_md"] / state["paper_markdown"]
+      - state["related_summaries"] (list of strings)
+    Produces:
+      - state["final_review"]
+      - returns an object with `.logs`
+    """
+
+    paper_title = state.get("paper_title", "Unknown Title")
+
+    # Try to find the main paper text in a few common keys
+    main_text = (
+        state.get("paper_abstract")
+        or state.get("paper_md")
+        or state.get("paper_markdown")
+        or ""
     )
 
+    related_summaries = state.get("related_summaries", [])
+
+    # Build a compact related work block: each summary as a bullet
+    related_block = "\n\n".join(
+        f"- {s}" for s in related_summaries if isinstance(s, str)
+    )
+
+    # Truncate to keep prompts reasonable
+    main_text_trunc = main_text[:4000]
+    related_trunc = related_block[:4000]
+
     prompt = f"""
-You are an expert conference reviewer.
+You are an expert peer reviewer for scientific papers.
 
-Paper title: {title}
+You will write a structured review for the following paper:
 
-Paper content (compacted):
-{paper_md}
+Title: "{paper_title}"
 
-Top related papers:
-{related_block}
+Main paper (partial):
+\"\"\"{main_text_trunc}\"\"\"
 
-Write a structured review with:
-1) Summary (1 paragraph)
-2) Strengths (bullets)
-3) Weaknesses (bullets)
-4) Novelty & related work positioning
-5) Methodology soundness
-6) Reproducibility & clarity
-7) Suggestions to improve
+Related work summaries (partial):
+\"\"\"{related_trunc}\"\"\"
 
-Be specific, cite related papers by title when used.
-No hallucinations. If unsure, say so.
+Your output must be in this structure:
+
+1. Summary (3–5 sentences)
+2. Strengths (bullet list)
+3. Weaknesses / Limitations (bullet list)
+4. Suggestions for Improvement (bullet list)
+5. Overall Recommendation (one of: strong accept, accept, weak accept, borderline, weak reject, reject)
+
+Be concise, technical, and objective. Do not invent wild claims that are not supported by the text.
 """
-    review = gemini_text(prompt, temperature=0.2)
+
+    error_info = None
+    try:
+        review = gemini_text(prompt, temperature=0.25)
+    except LLMQuotaError as e:
+        review = (
+            "[Review generation skipped: Gemini quota / rate limit exceeded. "
+            "Please try again later or with a different API key.]"
+        )
+        error_info = str(e)
+    except LLMConfigError as e:
+        review = (
+            "[Review generation failed due to Gemini configuration error. "
+            "Check GEMINI_API_KEY and GEMINI_MODEL.]"
+        )
+        error_info = str(e)
+
+    # Store in state so the rest of the pipeline (e.g. scoring) can use it
     state["final_review"] = review
-    return AgentResult(review, {"step": "review_writer"})
+
+    class ReviewResult:
+        def __init__(self, logs):
+            self.logs = logs
+
+    logs = {
+        "agent": "review_writer_agent",
+        "num_related": len(related_summaries),
+        "had_error": error_info is not None,
+        "error": error_info,
+    }
+
+    return ReviewResult(logs)

@@ -23,11 +23,12 @@ async def run_pipeline(pdf_path: str):
 
     original_title = state["paper_title"]
 
-    tasks = [
-        asyncio.to_thread(summarizer_agent, p, original_title)
-        for p in state["top_related"]
-    ]
-    results = await asyncio.gather(*tasks)
+    # Run summarizer_agent sequentially (still offloaded to a thread),
+    # to reduce parallel Gemini calls and be friendlier to free tier.
+    results = []
+    for p in state["top_related"]:
+        r = await asyncio.to_thread(summarizer_agent, p, original_title)
+        results.append(r)
 
     related_summaries = []
     for r in results:

@@ -46,7 +46,7 @@ This project is built entirely with **Gemini-powered agents**, incorporates **pa
 
 ---
 
-## 🧠 Architecture
+## Architecture
 
 ![Architecture](assets/Screenshot 2025-11-25 at 5.23.43 PM.png)
 

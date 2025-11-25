@@ -48,45 +48,8 @@ This project is built entirely with **Gemini-powered agents**, incorporates **pa
 
 ## 🧠 Architecture
 
-The system is composed of **eight agents**, each responsible for one part of the pipeline.
-+—————––+
-|   Intake Agent    |  Extract paper text, title
-+–––––+––––+
-|
-v
-+—————––+
-| Orchestrator      |  Creates multi-step plan
-+–––––+––––+
-|
-v
-+—————––+
-| Query Builder     |  Builds search queries for related papers
-+–––––+––––+
-|
-v
-+—————––+
-| Retriever Agent   |  ArXiv search API
-+–––––+––––+
-|
-v
-+—————––+
-| Ranker Agent      |  Sorts papers by relevance
-+–––––+––––+
-|
-v
-+—————————+
-| Parallel Summarizer Agents|  Summaries in parallel threads
-+–––––+––––––––+
-|
-v
-+—————––+
-| Review Writer     |  Final review narrative
-+–––––+––––+
-|
-v
-+—————––+
-| Scoring Agent     |  Quantitative scores
-+—————––+
+![Architecture Diagram](assets/Screenshot 2025-11-25 at 5.23.43 PM.png)
+
 ## Setup
 
 ```bash
